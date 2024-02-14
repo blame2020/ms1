@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package greet;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "ms1/pbgen/greetpb";
+
+message GreetRequest {
+  string name = 1;
+}
+
+message GreetResponse {
+  string greeting = 1;
+}
+
+service GreetService {
+  rpc Greet(GreetRequest) returns (GreetResponse) {}
+  rpc UseWellKnownTypes(google.protobuf.Empty) returns (google.protobuf.Empty);
+}

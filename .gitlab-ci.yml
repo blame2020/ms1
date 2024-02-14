@@ -1,0 +1,4 @@
+---
+build-hello:
+  script:
+    - echo "hello world"

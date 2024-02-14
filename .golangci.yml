@@ -1,0 +1,24 @@
+linters:
+  enable:
+    - asciicheck
+    - bodyclose
+    - errname
+    - durationcheck
+    - exhaustive
+    - exportloopref
+    - forcetypeassert
+    - gocyclo
+    - godot
+    - goimports
+    - gosec
+    # - ifshort
+    - nakedret
+    - nolintlint
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - wsl
+
+run:
+  build-tags:
+    - integration

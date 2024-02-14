@@ -1,0 +1,10 @@
+---
+version: '3'
+
+services:
+  ms1-server:
+    image: localhost/ms1-server:latest
+    depends_on:
+      - db
+  db:
+    image: docker.io/library/nginx:latest
