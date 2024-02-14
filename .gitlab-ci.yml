@@ -1,4 +1,27 @@
 ---
-build-hello:
+variables:
+  hello: world
+
+stages:
+  - build
+  - test
+
+build:
+  image: docker.io/library/busybox:latest
   script:
-    - echo "hello world"
+    - echo "hello $hello"
+
+test:
+  image: docker.io/library/busybox:latest
+  services:
+    - docker.io/library/redis:latest
+  script:
+    - echo "hello $hello"
+
+build2:
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+     - /kaniko/executor --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --no-push
+     - /kaniko/executor --help
