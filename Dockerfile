@@ -2,6 +2,7 @@ FROM docker.io/library/golang:1.21 as builder
 
 RUN pwd
 COPY . .
+RUN ls -al
 RUN make
 
 FROM gcr.io/distroless/static-debian12:latest
