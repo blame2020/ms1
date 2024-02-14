@@ -1,7 +1,8 @@
 FROM docker.io/library/golang:1.21 as builder
 
 RUN pwd
-COPY . .
+COPY . /build
+WORKDIR /build
 RUN ls -al
 RUN make
 
