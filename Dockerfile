@@ -8,7 +8,7 @@ RUN make
 
 FROM gcr.io/distroless/static-debian12:latest
 
-COPY --from=0 /work/build/ms1-server /
+COPY --from=0 /build/build/ms1-server /
 
 EXPOSE 50051
 
