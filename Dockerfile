@@ -1,14 +1,12 @@
-FROM docker.io/library/golang:1.21 as builder
+FROM docker.io/library/golang:1.21
 
-RUN pwd
-COPY . /build
 WORKDIR /build
-RUN ls -al
+COPY . .
 RUN make
 
 FROM gcr.io/distroless/static-debian12:latest
 
-COPY --from=0 /build/build/ms1-server /
+COPY --from=builder /build/build/ms1-server /
 
 EXPOSE 50051
 

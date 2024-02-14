@@ -7,9 +7,11 @@ stages:
   - test
 
 build:
-  image: docker.io/library/busybox:latest
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   script:
-    - echo "hello $hello"
+     - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --no-push
 
 test:
   image: docker.io/library/busybox:latest
@@ -17,11 +19,3 @@ test:
     - docker.io/library/redis:latest
   script:
     - echo "hello $hello"
-
-build2:
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  script:
-     - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --no-push
-     - /kaniko/executor --help
