@@ -53,3 +53,4 @@ jobs:
       - uses: docker://gcr.io/kaniko-project/executor:latest
         with:
           args: --cache-dir=${{github.workspace}}/cache --context=${{github.workspace}} --dockerfile=Dockerfile --reproducible --no-push --tarPath ${{github.workspace}}/image.tar
+          working-directory: ${{github.workspace}}
