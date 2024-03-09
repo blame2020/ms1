@@ -48,7 +48,8 @@ jobs:
            key: kaniko-cache
       - uses: docker://gcr.io/kaniko-project/warmer:latest
         with:
-          args: --cache-dir=${{github.workspace}}/cache --dockerfile=${{github.workspace}}/Dockerfile
+          args: --cache-dir=${{github.workspace}}/cache --dockerfile=Dockerfile
+          working-directory: ${{github.workspace}}
       - uses: docker://gcr.io/kaniko-project/executor:latest
         with:
           args: --cache-dir=${{github.workspace}}/cache --context=${{github.workspace}} --dockerfile=Dockerfile --reproducible --no-push --tarPath ${{github.workspace}}/image.tar
