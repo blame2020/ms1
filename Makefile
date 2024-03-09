@@ -12,11 +12,10 @@ $(BINS): $(shell find . -name '*.go')
 .PHONY: release
 release:
 	$(MAKE) clean
-	$(MAKE) GO_FLAGS="'-ldflags=-s -w -buildid= -X main.version=$(VERSION)' -trimpath" VERSION=$(VERSION)
-	$(MAKE) oci
+	$(MAKE) GO_FLAGS="'-ldflags=-s -w -buildid= -X main.version=$(VERSION)' -trimpath -buildvcs=false" VERSION=$(VERSION)
 
 DOCKER := docker
-.PHONY: docker
+.PHONY: oci
 oci: $(BINS)
 	$(DOCKER) image build -t ms1-server:$(VERSION) -t ms1-server:latest .
 
@@ -24,9 +23,15 @@ oci: $(BINS)
 integration: oci
 	go test -v -count 1 ./integration
 
+.PHONY: vendor
+vendor:
+	go mod tidy
+	go mod vendor
+	go mod verify
+
 .PHONY: lint
-lint: bin/golangci-lint
-	./bin/golangci-lint run ./...
+lint: build/tools/golangci-lint
+	$< run --timeout=10m ./...
 
 .PHONY: gen
 gen:
@@ -36,14 +41,16 @@ gen:
 test:
 	go test -v ./...
 
-bin/golangci-lint:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(PWD)/bin v1.54.2
+build/tools/golangci-lint:
+	mkdir -p $(dir $@)
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(dir $@) v1.54.2
 
-audit: bin/trivy
-	./bin/trivy fs --scanners vuln .
+audit: build/tools/trivy
+	$< fs --scanners vuln .
 
-bin/trivy:
-	curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b $(PWD)/bin v0.45.1
+build/tools/trivy:
+	mkdir -p $(dir $@)
+	curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b $(dir $@) v0.45.1
 
 .PHONY: ci
 ci:
@@ -57,28 +64,29 @@ check-git-clean:
 clean:
 	rm -rf build bin
 
-pbgen: protoc bin/protoc-gen-go bin/protoc-gen-go-grpc go.mod $(wildcard proto/*/*.proto)
-	PATH=$(PWD)/bin ./protoc/bin/protoc --go_out=. --go_opt=module=$(shell go list -m) \
+pbgen: build/tools/protoc build/tools/protoc-gen-go build/tools/protoc-gen-go-grpc go.mod $(wildcard pb/*/*.proto)
+	PATH=$(PWD)/build/tools build/tools/protoc/bin/protoc --go_out=. --go_opt=module=$(shell go list -m) \
 		--go-grpc_out=. --go-grpc_opt=module=$(shell go list -m) \
-		$(wildcard proto/*/*.proto)
+		$(wildcard pb/*/*.proto)
 	@touch $@
 
-protoc:
-	curl -Lo protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v24.4/protoc-24.4-linux-$(shell uname -m).zip
+build/tools/protoc:
+	curl --progress-bar -Lo protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v25.3/protoc-25.3-$(shell uname | tr '[:upper:]' '[:lower:]')-$(shell uname -m).zip
 	rm -rf $@
-	unzip -d protoc protoc.zip
+	mkdir -p build/tools
+	unzip -qd build/tools/protoc protoc.zip
 	rm protoc.zip
-	chmod +x protoc/bin/protoc
+	chmod +x build/tools/protoc/bin/protoc
 
-bin/protoc-gen-go:
-	GOBIN=$(PWD)/bin go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+build/tools/protoc-gen-go:
+	GOBIN=$(PWD)/build/tools go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 
-bin/protoc-gen-go-grpc:
-	GOBIN=$(PWD)/bin go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+build/tools/protoc-gen-go-grpc:
+	GOBIN=$(PWD)/build/tools go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 
 .PHONY: pblint
-pblint: bin/protolint
-	./$< proto
+pblint: build/tools/protolint
+	$< pb
 
-bin/protolint:
-	GOBIN=$(PWD)/bin go install github.com/yoheimuta/protolint/cmd/protolint@v0.42.2
+build/tools/protolint:
+	GOBIN=$(PWD)/build/tools go install github.com/yoheimuta/protolint/cmd/protolint@v0.47.5

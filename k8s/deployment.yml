@@ -1,0 +1,34 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms1-deployment
+  labels:
+    app.kubernetes.io/name: ms1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ms1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ms1
+    spec:
+      containers:
+        - name: ms1-server
+          image: gcr.io/group/ms1-server
+          ports:
+            - containerPort: 50051
+          env:
+            - name: DEMO_GREETING
+              value: "Hello from the environment"
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+      restartPolicy: Always
+      # volumes:
+      #   - name: data1
+      #     configMap:
+      #       name: configmap1

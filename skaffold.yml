@@ -1,0 +1,16 @@
+---
+apiVersion: skaffold/v4beta9
+kind: Config
+build:
+  artifacts:
+    - image: gcr.io/group/ms1-server
+  tagPolicy:
+    dateTime:
+      format: "2006-01-02_15-04-05_MST"
+      timezone: "UTC"
+manifests:
+  rawYaml:
+    - k8s/*.yml
+  # kustomize:
+  #   paths:
+  #     - path/to/folder-with-kustomize-dot-yaml

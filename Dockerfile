@@ -2,7 +2,7 @@ FROM docker.io/library/golang:1.21 as builder
 
 WORKDIR /build
 COPY . .
-RUN make
+RUN --mount=type=cache,target=/.go make release
 
 FROM gcr.io/distroless/static-debian12:latest
 

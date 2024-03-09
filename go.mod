@@ -5,7 +5,6 @@ go 1.21.6
 require (
 	dagger.io/dagger v0.9.9
 	github.com/google/go-cmp v0.6.0
-	github.com/google/wire v0.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
