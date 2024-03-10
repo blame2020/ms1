@@ -38,19 +38,20 @@ jobs:
       #     echo $TARGET
       #     git fetch origin $TARGET:$TARGET
       #     git merge origin/$TARGET
-      - uses: actions/setup-go@v4
-        with:
-          go-version-file: go.mod
-      - run: make
-      - uses: actions/cache@v4
-        with:
-           path: ${{github.workspace}}/cache
-           key: kaniko-cache
-      - uses: docker://gcr.io/kaniko-project/warmer:latest
-        with:
-          args: --cache-dir=${{github.workspace}}/cache --dockerfile=Dockerfile
-          working-directory: ${{github.workspace}}
-      - uses: docker://gcr.io/kaniko-project/executor:latest
-        with:
-          args: --cache-dir=${{github.workspace}}/cache --context=${{github.workspace}} --dockerfile=Dockerfile --reproducible --no-push --tarPath ${{github.workspace}}/image.tar
-          working-directory: ${{github.workspace}}
+      # - uses: actions/setup-go@v4
+      #   with:
+      #     go-version-file: go.mod
+      # - run: make
+      # - uses: actions/cache@v4
+      #   with:
+      #     path: ${{github.workspace}}/cache
+      #     key: kaniko-cache
+      # - uses: docker://gcr.io/kaniko-project/warmer:latest
+      #   with:
+      #     args: --cache-dir=${{github.workspace}}/cache --dockerfile=Dockerfile
+      #     working-directory: ${{github.workspace}}
+      # - uses: docker://gcr.io/kaniko-project/executor:latest
+      #   with:
+      #     args: --context=/github/workspace --dockerfile=/github/workspace/Dockerfile --no-push --tarPath=/github/workspace/image.tar
+      - run: docker run --rm -v ~/cache:/cache -v ${{github.workspace}}:/workspace gcr.io/kaniko-project/warmer:latest --cache-dir=/cache -d /workspace/Dockerfile
+      - run: docker run --rm -v $(pwd):/workspace gcr.io/kaniko-project/executor:latest --no-push
